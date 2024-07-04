@@ -66,3 +66,26 @@ impl Parse for Struct {
         Some(Self {name, members})
     }
 }
+
+impl Parse for Function {
+    fn parse(pair: &TokenValuePair) -> Option<Self> {
+        let re = RegexBuilder::new(r"(\w+)\s+(\w+)\s*\((.*?)\)")
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap();
+
+        let Some(capture) = re.captures(&pair.value) else { return None; };
+
+        let (_, [return_type, name, params]) = capture.extract();
+
+        let name = String::from(name);
+        let return_type = String::from(return_type);
+
+        let params = params.split(',')
+            .map(str::trim)
+            .filter_map(|x| if x.is_empty() {None} else {Some(String::from(x))})
+            .collect::<Vec<String>>();
+
+        Some(Self {name, return_type, params})
+    }
+}
