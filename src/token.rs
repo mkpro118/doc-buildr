@@ -46,7 +46,7 @@ impl TokenValuePair {
 }
 
 
-use Token::{*};
+pub use Token::{*};
 impl<'a> Token {
     fn get_pairs() -> &'static [TokenPatternPair] {
         static NAMES: [TokenPatternPair; 4] = [
