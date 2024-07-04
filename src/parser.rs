@@ -1,3 +1,4 @@
+use regex::{*};
 use crate::token::{*};
 
 #[derive(Debug)]
@@ -25,12 +26,12 @@ struct Enum {
 }
 
 trait Parse {
-    fn parse(pair: &TokenValuePair) -> Self;
+    fn parse(pair: &TokenValuePair) -> Option<Self> where Self: Sized;
 }
 
 impl Parse for DocComment {
-    fn parse(pair: &TokenValuePair) -> Self {
-        let content = pair.value
+    fn parse(pair: &TokenValuePair) -> Option<Self> {
+        let comment = pair.value
             .strip_prefix("/**").unwrap()
             .strip_suffix("*/").unwrap()
             .split(&['\n', '\r'])
@@ -40,6 +41,28 @@ impl Parse for DocComment {
             .collect::<Vec<_>>()
             .join("\n");
 
-        Self {comment: content}
+        Some(Self {comment})
+    }
+}
+
+impl Parse for Struct {
+    fn parse(pair: &TokenValuePair) -> Option<Self> {
+        let re = RegexBuilder::new(r"struct\s+(\w+)\s*\{(.*?)\}")
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap();
+
+        let Some(capture) = re.captures(&pair.value) else { return None; };
+
+        let (_, [name, members]) = capture.extract();
+
+        let name = String::from(name);
+        let members = members.split(';')
+            .map(str::trim)
+            .filter_map(|x| if x.is_empty() {None} else {Some(String::from(x))})
+            .collect::<Vec<String>>();
+
+
+        Some(Self {name, members})
     }
 }
