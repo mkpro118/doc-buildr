@@ -13,8 +13,8 @@ struct TokenPatternPair(&'static str, &'static str);
 
 #[derive(Debug)]
 pub struct TokenValuePair{
-    token: Token,
-    value: String,
+    pub token: Token,
+    pub value: String,
 }
 
 impl TokenValuePair {
