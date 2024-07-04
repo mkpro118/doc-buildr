@@ -26,19 +26,32 @@ struct Enum {
 }
 
 trait Parse {
-    fn parse(pair: &TokenValuePair) -> Option<Self> where Self: Sized;
+    fn parse(src: &str) -> Option<Self> where Self: Sized;
+
+    fn get_capture<'a, 'b>(
+        pat: &'a str,
+        src: &'b str
+    ) -> Option<Captures<'b>> {
+        let re = RegexBuilder::new(pat)
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap();
+
+        re.captures(src)
+    }
+
+    fn src_split(source: &str, sep: char) -> Vec<String> {
+        source.split(sep)
+              .map(str::trim)
+              .filter_map(|x| if x.is_empty() {None} else {Some(String::from(x))})
+              .collect::<Vec<String>>()
+    }
 }
 
-fn src_split(source: &str, sep: char) -> Vec<String> {
-    source.split(sep)
-          .map(str::trim)
-          .filter_map(|x| if x.is_empty() {None} else {Some(String::from(x))})
-          .collect::<Vec<String>>()
-}
 
 impl Parse for DocComment {
-    fn parse(pair: &TokenValuePair) -> Option<Self> {
-        let comment = pair.value
+    fn parse(src: &str) -> Option<Self> {
+        let comment = src
             .strip_prefix("/**").unwrap()
             .strip_suffix("*/").unwrap()
             .split(&['\n', '\r'])
@@ -53,55 +66,43 @@ impl Parse for DocComment {
 }
 
 impl Parse for Struct {
-    fn parse(pair: &TokenValuePair) -> Option<Self> {
-        let re = RegexBuilder::new(r"struct\s+(\w+)\s*\{(.*?)\}")
-            .dot_matches_new_line(true)
-            .build()
-            .unwrap();
-
-        let Some(capture) = re.captures(&pair.value) else { return None; };
+    fn parse(src: &str) -> Option<Self> {
+        static PAT: &'static str = r"struct\s+(\w+)\s*\{(.*?)\}";
+        let Some(capture) = Self::get_capture(PAT, src) else { return None; };
 
         let (_, [name, members]) = capture.extract();
 
         let name = String::from(name);
-        let members = src_split(members, ';');
+        let members = Self::src_split(members, ';');
 
         Some(Self {name, members})
     }
 }
 
 impl Parse for Function {
-    fn parse(pair: &TokenValuePair) -> Option<Self> {
-        let re = RegexBuilder::new(r"(\w+)\s+(\w+)\s*\((.*?)\)")
-            .dot_matches_new_line(true)
-            .build()
-            .unwrap();
-
-        let Some(capture) = re.captures(&pair.value) else { return None; };
+    fn parse(src: &str) -> Option<Self> {
+        static PAT: &'static str = r"(\w+)\s+(\w+)\s*\((.*?)\)";
+        let Some(capture) = Self::get_capture(PAT, src) else { return None; };
 
         let (_, [return_type, name, params]) = capture.extract();
 
         let name = String::from(name);
         let return_type = String::from(return_type);
-        let params = src_split(params, ',');
+        let params = Self::src_split(params, ',');
 
         Some(Self {name, return_type, params})
     }
 }
 
 impl Parse for Enum {
-    fn parse(pair: &TokenValuePair) -> Option<Self> {
-        let re = RegexBuilder::new(r"enum\s+(\w+)\s*\{(.*?)\}")
-            .dot_matches_new_line(true)
-            .build()
-            .unwrap();
-
-        let Some(capture) = re.captures(&pair.value) else { return None; };
+    fn parse(src: &str) -> Option<Self> {
+        static PAT: &'static str =r"enum\s+(\w+)\s*\{(.*?)\}";
+        let Some(capture) = Self::get_capture(PAT, src) else { return None; };
 
         let (_, [name, variants]) = capture.extract();
 
         let name = String::from(name);
-        let variants = src_split(variants, ',');
+        let variants = Self::src_split(variants, ',');
 
         Some(Self {name, variants})
     }
