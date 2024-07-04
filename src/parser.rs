@@ -26,6 +26,7 @@ pub struct Enum {
     pub variants: Vec<String>,
 }
 
+#[derive(Debug)]
 pub enum ParsedToken {
     DocComment(DocComment),
     Struct(Struct),
