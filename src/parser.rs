@@ -3,27 +3,34 @@ use crate::token;
 use crate::TokenValuePair;
 
 #[derive(Debug)]
-struct DocComment {
-    comment: String
+pub struct DocComment {
+    pub comment: String
 }
 
 #[derive(Debug)]
-struct Struct {
-    name: String,
-    members: Vec<String>,
+pub struct Struct {
+    pub name: String,
+    pub members: Vec<String>,
 }
 
 #[derive(Debug)]
-struct Function {
-    name: String,
-    return_type: String,
-    params: Vec<String>,
+pub struct Function {
+    pub name: String,
+    pub return_type: String,
+    pub params: Vec<String>,
 }
 
 #[derive(Debug)]
-struct Enum {
-    name: String,
-    variants: Vec<String>,
+pub struct Enum {
+    pub name: String,
+    pub variants: Vec<String>,
+}
+
+enum ParsedToken {
+    DocComment(DocComment),
+    Struct(Struct),
+    Function(Function),
+    Enum(Enum),
 }
 
 fn get_capture<'a, 'b>(
@@ -109,17 +116,19 @@ impl Parse for Enum {
     }
 }
 
-fn to_box<T: Parse>(x: T) -> Box<dyn Parse> {
-    Box::new(x) as Box<dyn Parse>
-}
-
-pub fn parse_tokens(pairs: Vec<TokenValuePair>) -> Vec<Box<dyn Parse>> {
-    pairs.iter()
-         .filter_map(|pair| { match pair.token {
-            token::DocComment => DocComment::parse(&pair.value).map(to_box),
-            token::Enum => Enum::parse(&pair.value).map(to_box),
-            token::Function => Function::parse(&pair.value).map(to_box),
-            token::Struct => Struct::parse(&pair.value).map(to_box),
-        }
-    }).collect()
+pub fn parse_tokens(pairs: Vec<TokenValuePair>) -> Vec<ParsedToken> {
+    pairs.iter().filter_map(|pair|  Some(match pair.token {
+        token::DocComment => ParsedToken::DocComment(
+            DocComment::parse(&pair.value).unwrap()
+        ),
+        token::Enum => ParsedToken::Enum(
+            Enum::parse(&pair.value).unwrap()
+        ),
+        token::Function => ParsedToken::Function(
+            Function::parse(&pair.value).unwrap()
+        ),
+        token::Struct => ParsedToken::Struct(
+            Struct::parse(&pair.value).unwrap()
+        ),
+    })).collect()
 }
