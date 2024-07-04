@@ -27,3 +27,19 @@ struct Enum {
 trait Parse {
     fn parse(pair: &TokenValuePair) -> Self;
 }
+
+impl Parse for DocComment {
+    fn parse(pair: &TokenValuePair) -> Self {
+        let content = pair.value
+            .strip_prefix("/**").unwrap()
+            .strip_suffix("*/").unwrap()
+            .split(&['\n', '\r'])
+            .map(str::trim)
+            .map(|x| x.trim_start_matches('*'))
+            .map(str::trim)
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        Self {comment: content}
+    }
+}
