@@ -108,3 +108,18 @@ impl Parse for Enum {
         Some(Self {name, variants})
     }
 }
+
+fn to_box<T: Parse>(x: T) -> Box<dyn Parse> {
+    Box::new(x) as Box<dyn Parse>
+}
+
+pub fn parse_tokens(pairs: Vec<TokenValuePair>) -> Vec<Box<dyn Parse>> {
+    pairs.iter()
+         .filter_map(|pair| { match pair.token {
+            token::DocComment => DocComment::parse(&pair.value).map(to_box),
+            token::Enum => Enum::parse(&pair.value).map(to_box),
+            token::Function => Function::parse(&pair.value).map(to_box),
+            token::Struct => Struct::parse(&pair.value).map(to_box),
+        }
+    }).collect()
+}
