@@ -26,7 +26,7 @@ pub struct Enum {
     pub variants: Vec<String>,
 }
 
-enum ParsedToken {
+pub enum ParsedToken {
     DocComment(DocComment),
     Struct(Struct),
     Function(Function),
