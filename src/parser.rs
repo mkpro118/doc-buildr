@@ -29,6 +29,13 @@ trait Parse {
     fn parse(pair: &TokenValuePair) -> Option<Self> where Self: Sized;
 }
 
+fn src_split(source: &str, sep: char) -> Vec<String> {
+    source.split(sep)
+          .map(str::trim)
+          .filter_map(|x| if x.is_empty() {None} else {Some(String::from(x))})
+          .collect::<Vec<String>>()
+}
+
 impl Parse for DocComment {
     fn parse(pair: &TokenValuePair) -> Option<Self> {
         let comment = pair.value
@@ -57,11 +64,7 @@ impl Parse for Struct {
         let (_, [name, members]) = capture.extract();
 
         let name = String::from(name);
-        let members = members.split(';')
-            .map(str::trim)
-            .filter_map(|x| if x.is_empty() {None} else {Some(String::from(x))})
-            .collect::<Vec<String>>();
-
+        let members = src_split(members, ';');
 
         Some(Self {name, members})
     }
@@ -80,11 +83,7 @@ impl Parse for Function {
 
         let name = String::from(name);
         let return_type = String::from(return_type);
-
-        let params = params.split(',')
-            .map(str::trim)
-            .filter_map(|x| if x.is_empty() {None} else {Some(String::from(x))})
-            .collect::<Vec<String>>();
+        let params = src_split(params, ',');
 
         Some(Self {name, return_type, params})
     }
