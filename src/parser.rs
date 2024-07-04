@@ -88,3 +88,21 @@ impl Parse for Function {
         Some(Self {name, return_type, params})
     }
 }
+
+impl Parse for Enum {
+    fn parse(pair: &TokenValuePair) -> Option<Self> {
+        let re = RegexBuilder::new(r"enum\s+(\w+)\s*\{(.*?)\}")
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap();
+
+        let Some(capture) = re.captures(&pair.value) else { return None; };
+
+        let (_, [name, variants]) = capture.extract();
+
+        let name = String::from(name);
+        let variants = src_split(variants, ',');
+
+        Some(Self {name, variants})
+    }
+}
