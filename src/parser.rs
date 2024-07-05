@@ -43,8 +43,9 @@ impl Parse for entity::DocComment {
             .split(&['\n', '\r'])
             .map(str::trim)
             .map(|x| x.trim_start_matches('*'))
-            .map(str::trim)
+            .map(str::trim_end)
             .filter(|x| !x.is_empty())
+            .map(|x| {let mut s = x.to_string(); s.push('\\'); s})
             .collect::<Vec<_>>()
             .join("\n");
 
