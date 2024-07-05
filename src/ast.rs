@@ -10,7 +10,7 @@ pub enum NodeTypes<'a> {
 
 #[derive(Debug)]
 pub struct Node<'a> {
-    comment: String,
+    comment: Option<&'a entity::DocComment>,
     value: Option<NodeTypes<'a>>,
 }
 
@@ -20,9 +20,9 @@ pub struct AST<'a> {
 }
 
 impl<'a> Node<'a> {
-    pub fn from(token: &'a ParsedToken, comment: &str) -> Self {
+    pub fn from(token: &'a ParsedToken, comment: Option<&'a entity::DocComment>) -> Self {
         Self {
-            comment: comment.to_string(),
+            comment,
             value: match token {
                 ParsedToken::DocComment(_) => None,
                 ParsedToken::Struct(x) => Some(NodeTypes::Struct(x)),
@@ -32,8 +32,8 @@ impl<'a> Node<'a> {
         }
     }
 
-    pub fn get_comment(&self) -> &String {
-        &self.comment
+    pub fn get_comment(&self) -> Option<&entity::DocComment> {
+        self.comment
     }
 
     pub fn get_value(&self) -> &Option<NodeTypes> {
@@ -43,20 +43,16 @@ impl<'a> Node<'a> {
 
 impl<'a> AST<'a> {
     pub fn build_ast(parsed_tokens: &'a Vec<ParsedToken>) -> Self {
-        let default_comment: String = String::from("No documentation available");
         let mut ast = vec![];
-        let mut current_doc: Option<String> = None;
+        let mut current_doc: Option<&entity::DocComment> = None;
 
         for token in parsed_tokens {
             match token {
                 ParsedToken::DocComment(comment) => {
-                    current_doc = Some(comment.comment.to_owned());
+                    current_doc = Some(comment);
                 }
                 _ => {
-                    ast.push(Node::from(
-                        token,
-                        &current_doc.unwrap_or_else(|| default_comment.clone()),
-                    ));
+                    ast.push(Node::from(token, current_doc));
                     current_doc = None;
                 }
             };
