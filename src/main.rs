@@ -1,3 +1,19 @@
+use std::fs;
+
+mod entity;
+mod token;
+mod parser;
+mod ast;
+mod md_gen;
+
 fn main() {
-    println!("Hello, world!");
+    let filename = "";
+    let data = fs::read_to_string(filename).expect("File not found!");
+    let tokens = token::Token::tokenize(&data);
+
+    let parsed = parser::parse_tokens(&tokens);
+    let ast = ast::AST::build_ast(&parsed);
+    let md = md_gen::generate_md(&ast);
+
+    println!("{}", md);
 }
