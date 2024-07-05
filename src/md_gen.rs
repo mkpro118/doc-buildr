@@ -96,11 +96,34 @@ impl<'a> NodeTypes<'a> {
             .as_str(),
         );
         md.push_str(format!("{}\n\n", md_escape(comment_str)).as_str());
-        md.push_str(format!("Returns `{}`: {}\n\n", node.return_type, ret_str).as_str());
+
+        if node.return_type != "void" {
+            md.push_str(
+                format!("**Returns**:\n\n`{}`: {}\n\n", node.return_type, ret_str).as_str(),
+            );
+        }
+
         md.push_str("**Parameters**:\n");
 
-        for param in &node.params {
-            md.push_str(format!("- `{}`\n", param).as_str());
+        if let Some(c) = comment {
+            node.params
+                .iter()
+                .map(|x| x.split(' ').last().unwrap())
+                .fold((), |_, name| {
+                    let desc = match c.params.iter().find(|p| p.name == name) {
+                        Some(p) => p.description.as_str(),
+                        None => "No description",
+                    };
+
+                    md.push_str(format!("- `{}`: {}\n", name, desc).as_str())
+                })
+        } else {
+            node.params
+                .iter()
+                .map(|param| param.split(' ').last().unwrap())
+                .fold((), |_, name| {
+                    md.push_str(format!("- `{}`\n", name).as_str())
+                })
         }
 
         md
