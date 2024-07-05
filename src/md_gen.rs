@@ -10,24 +10,40 @@ fn generate_md(ast: AST) -> String {
 impl Node {
     fn md_gen_visit(&self) -> String {
         match self.get_value() {
-            Some(node_type) => node_type.md_gen_visit(),
+            Some(node_type) => node_type.md_gen_visit(self.get_comment()),
             None => "".to_string(),
         }
     }
 }
 
 impl NodeTypes {
-    fn md_gen_visit(&self) -> String {
+    fn md_gen_visit(&self, comment: &str) -> String {
         match self {
-            Enum => self.md_gen_visit_enum(),
-            Function => self.md_gen_visit_function(),
-            Struct => self.md_gen_visit_struct(),
+            NodeTypes::Enum(_) => self.md_gen_visit_enum(comment),
+            NodeTypes::Function(_) => self.md_gen_visit_function(comment),
+            NodeTypes::Struct(_) => self.md_gen_visit_struct(comment),
         }
     }
 
-    fn md_gen_visit_enum(&self) -> String;
+    fn md_gen_visit_enum(&self, comment: &str) -> String {
+        let NodeTypes::Enum(node) = self else { panic!("Wrong type") };
+        let mut md = String::new();
+        md.push_str(format!("## Enum {}\n\n", node.name).as_str());
+        md.push_str(format!("{}\n\n", comment).as_str());
+        md.push_str("**Variants**:\n");
 
-    fn md_gen_visit_function(&self) -> String;
+        for variant in &node.variants {
+            md.push_str(format!("- {}\n", variant).as_str());
+        }
 
-    fn md_gen_visit_struct(&self) -> String;
+        md
+    }
+
+    fn md_gen_visit_function(&self, comment: &str) -> String {
+        unimplemented!()
+    }
+
+    fn md_gen_visit_struct(&self, comment: &str) -> String {
+        unimplemented!()
+    }
 }
