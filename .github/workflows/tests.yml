@@ -27,13 +27,12 @@ jobs:
     strategy:
       matrix:
         os: [macos, ubuntu, windows]
-        rust: [stable, beta, nightly]
     steps:
     - uses: actions/checkout@v4
     - uses: actions-rs/toolchain@v1
-    - run: cargo +${{matrix.rust}} test --workspace --no-default-features
-    - run: cargo +${{matrix.rust}} test --workspace
-    - run: cargo +${{matrix.rust}} test --workspace --all-features
+    - run: cargo test --workspace --no-default-features
+    - run: cargo test --workspace
+    - run: cargo test --workspace --all-features
 
   miri:
     name: Miri
