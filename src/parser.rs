@@ -96,7 +96,7 @@ impl Parse for entity::Enum {
     }
 }
 
-pub fn parse_tokens(pairs: Vec<TokenValuePair>) -> Vec<ParsedToken> {
+pub fn parse_tokens(pairs: &Vec<TokenValuePair>) -> Vec<ParsedToken> {
     pairs.iter().filter_map(|pair|  Some(match pair.token {
         token::DocComment => ParsedToken::DocComment(
             entity::DocComment::parse(&pair.value).unwrap()
