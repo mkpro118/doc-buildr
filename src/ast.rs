@@ -2,25 +2,25 @@ use crate::entity;
 use crate::parser::{*};
 
 #[derive(Debug)]
-pub enum NodeTypes {
-    Enum(entity::Enum),
-    Function(entity::Function),
-    Struct(entity::Struct),
+pub enum NodeTypes<'a> {
+    Enum(&'a entity::Enum),
+    Function(&'a entity::Function),
+    Struct(&'a entity::Struct),
 }
 
 #[derive(Debug)]
-pub struct Node {
+pub struct Node<'a> {
     comment: String,
-    value: Option<NodeTypes>
+    value: Option<NodeTypes<'a>>
 }
 
 #[derive(Debug)]
-pub struct AST {
-    ast: Vec<Node>,
+pub struct AST<'a> {
+    ast: Vec<Node<'a>>,
 }
 
-impl Node {
-    pub fn from(token: ParsedToken, comment: &str) -> Self {
+impl<'a> Node<'a> {
+    pub fn from(token: &'a ParsedToken, comment: &str) -> Self {
         Self {
             comment: comment.to_string(),
             value: match token {
@@ -41,8 +41,8 @@ impl Node {
     }
 }
 
-impl AST {
-    pub fn build_ast(parsed_tokens: Vec<ParsedToken>) -> Self {
+impl<'a> AST<'a> {
+    pub fn build_ast(parsed_tokens: &'a Vec<ParsedToken>) -> Self {
         let default_comment: String = String::from("No documentation available");
         let mut ast = vec![];
         let mut current_doc: Option<String> = None;
