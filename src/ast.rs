@@ -1,11 +1,11 @@
-use crate::parser;
+use crate::entity;
 use crate::parser::{*};
 
 #[derive(Debug)]
 pub enum NodeTypes {
-    Enum(parser::Enum),
-    Function(parser::Function),
-    Struct(parser::Struct),
+    Enum(entity::Enum),
+    Function(entity::Function),
+    Struct(entity::Struct),
 }
 
 #[derive(Debug)]

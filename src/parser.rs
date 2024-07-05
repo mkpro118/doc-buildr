@@ -1,37 +1,14 @@
 use regex::{*};
+use crate::entity;
 use crate::token;
-use crate::TokenValuePair;
-
-#[derive(Debug)]
-pub struct DocComment {
-    pub comment: String
-}
-
-#[derive(Debug)]
-pub struct Struct {
-    pub name: String,
-    pub members: Vec<String>,
-}
-
-#[derive(Debug)]
-pub struct Function {
-    pub name: String,
-    pub return_type: String,
-    pub params: Vec<String>,
-}
-
-#[derive(Debug)]
-pub struct Enum {
-    pub name: String,
-    pub variants: Vec<String>,
-}
+use crate::token::TokenValuePair;
 
 #[derive(Debug)]
 pub enum ParsedToken {
-    DocComment(DocComment),
-    Struct(Struct),
-    Function(Function),
-    Enum(Enum),
+    DocComment(entity::DocComment),
+    Struct(entity::Struct),
+    Function(entity::Function),
+    Enum(entity::Enum),
 }
 
 fn get_capture<'a, 'b>(
@@ -58,7 +35,7 @@ pub trait Parse: 'static  {
 }
 
 
-impl Parse for DocComment {
+impl Parse for entity::DocComment {
     fn parse(src: &str) -> Option<Self> {
         let comment = src
             .strip_prefix("/**").unwrap()
@@ -67,6 +44,7 @@ impl Parse for DocComment {
             .map(str::trim)
             .map(|x| x.trim_start_matches('*'))
             .map(str::trim)
+            .filter(|x| !x.is_empty())
             .collect::<Vec<_>>()
             .join("\n");
 
@@ -74,7 +52,7 @@ impl Parse for DocComment {
     }
 }
 
-impl Parse for Struct {
+impl Parse for entity::Struct {
     fn parse(src: &str) -> Option<Self> {
         static PAT: &'static str = r"struct\s+(\w+)\s*\{(.*?)\}";
         let Some(capture) = get_capture(PAT, src) else { return None; };
@@ -88,7 +66,7 @@ impl Parse for Struct {
     }
 }
 
-impl Parse for Function {
+impl Parse for entity::Function {
     fn parse(src: &str) -> Option<Self> {
         static PAT: &'static str = r"(\w+)\s+(\w+)\s*\((.*?)\)";
         let Some(capture) = get_capture(PAT, src) else { return None; };
@@ -103,7 +81,7 @@ impl Parse for Function {
     }
 }
 
-impl Parse for Enum {
+impl Parse for entity::Enum {
     fn parse(src: &str) -> Option<Self> {
         static PAT: &'static str =r"enum\s+(\w+)\s*\{(.*?)\}";
         let Some(capture) = get_capture(PAT, src) else { return None; };
@@ -120,16 +98,16 @@ impl Parse for Enum {
 pub fn parse_tokens(pairs: Vec<TokenValuePair>) -> Vec<ParsedToken> {
     pairs.iter().filter_map(|pair|  Some(match pair.token {
         token::DocComment => ParsedToken::DocComment(
-            DocComment::parse(&pair.value).unwrap()
+            entity::DocComment::parse(&pair.value).unwrap()
         ),
         token::Enum => ParsedToken::Enum(
-            Enum::parse(&pair.value).unwrap()
+            entity::Enum::parse(&pair.value).unwrap()
         ),
         token::Function => ParsedToken::Function(
-            Function::parse(&pair.value).unwrap()
+            entity::Function::parse(&pair.value).unwrap()
         ),
         token::Struct => ParsedToken::Struct(
-            Struct::parse(&pair.value).unwrap()
+            entity::Struct::parse(&pair.value).unwrap()
         ),
     })).collect()
 }

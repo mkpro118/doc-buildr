@@ -72,8 +72,8 @@ impl<'a> Token {
         match self {
             Token::DocComment => r"/\*\*(.*?)\*/",
             Token::Function => r"\w+\s+\w+\s*\([^)]*\)\s*;",
-            Token::Struct => r"struct\s+\w+\s*\{[^}]*\}\s*;",
-            Token::Enum => r"enum\s+\w+\s*\{[^}]*\}\s*;",
+            Token::Struct => r"(typedef)?struct\s+\w+\s*\{[^}]*\}\s*(\w+)?;",
+            Token::Enum => r"(typedef)?enum\s+\w+\s*\{[^}]*\}\s*(\w+)?;",
         }
     }
 
