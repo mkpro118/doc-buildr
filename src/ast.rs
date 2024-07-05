@@ -2,23 +2,23 @@ use crate::parser;
 use crate::parser::{*};
 
 #[derive(Debug)]
-enum NodeTypes {
+pub enum NodeTypes {
     Enum(parser::Enum),
     Function(parser::Function),
     Struct(parser::Struct),
 }
 
 #[derive(Debug)]
-struct Node<'a> {
-    comment: &'a String,
+pub struct Node {
+    comment: String,
     children: Vec<NodeTypes>,
     value: Option<NodeTypes>
 }
 
-impl<'a> Node<'a> {
-    pub fn from(token: ParsedToken, comment: &'a String) -> Self {
+impl Node {
+    pub fn from(token: ParsedToken, comment: &str) -> Self {
         Self {
-            comment: comment,
+            comment: comment.to_string(),
             children: vec![],
             value: match token {
                 ParsedToken::DocComment(_) => None,
@@ -28,4 +28,25 @@ impl<'a> Node<'a> {
             }
         }
     }
+}
+
+pub fn build_ast(parsed_tokens: Vec<ParsedToken>) -> Vec<Node> {
+    let default_comment: String = String::from("No documentation available");
+    let mut ast = vec![];
+    let mut current_doc: Option<String> = None;
+
+    for token in parsed_tokens {
+        match token {
+            ParsedToken::DocComment(comment) => {
+                current_doc = Some(comment.comment.to_owned());
+            },
+            _ => {
+                ast.push(Node::from(token,
+                    &current_doc.unwrap_or_else(|| default_comment.clone())));
+                current_doc = None;
+            },
+        };
+    }
+
+    ast
 }
