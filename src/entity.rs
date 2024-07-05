@@ -1,6 +1,19 @@
 #[derive(Debug)]
+pub struct Param {
+    pub name: String,
+    pub description: String,
+}
+
+#[derive(Debug)]
+pub struct Return {
+    pub description: String,
+}
+
+#[derive(Debug)]
 pub struct DocComment {
     pub comment: String,
+    pub params: Vec<Param>,
+    pub retval: Option<Return>,
 }
 
 #[derive(Debug)]
