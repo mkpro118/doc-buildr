@@ -44,6 +44,16 @@ impl NodeTypes {
     }
 
     fn md_gen_visit_struct(&self, comment: &str) -> String {
-        unimplemented!()
+        let NodeTypes::Struct(node) = self else { panic!("Wrong type") };
+        let mut md = String::new();
+        md.push_str(format!("## Struct {}\n\n", node.name).as_str());
+        md.push_str(format!("{}\n\n", comment).as_str());
+        md.push_str("**Members**:\n");
+
+        for variant in &node.members {
+            md.push_str(format!("- {}\n", variant).as_str());
+        }
+
+        md
     }
 }
