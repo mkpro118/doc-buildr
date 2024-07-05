@@ -14,6 +14,11 @@ pub struct Node {
     value: Option<NodeTypes>
 }
 
+#[derive(Debug)]
+pub struct AST {
+    ast: Vec<Node>,
+}
+
 impl Node {
     pub fn from(token: ParsedToken, comment: &str) -> Self {
         Self {
@@ -28,23 +33,25 @@ impl Node {
     }
 }
 
-pub fn build_ast(parsed_tokens: Vec<ParsedToken>) -> Vec<Node> {
-    let default_comment: String = String::from("No documentation available");
-    let mut ast = vec![];
-    let mut current_doc: Option<String> = None;
+impl AST {
+    pub fn build_ast(parsed_tokens: Vec<ParsedToken>) -> Self {
+        let default_comment: String = String::from("No documentation available");
+        let mut ast = vec![];
+        let mut current_doc: Option<String> = None;
 
-    for token in parsed_tokens {
-        match token {
-            ParsedToken::DocComment(comment) => {
-                current_doc = Some(comment.comment.to_owned());
-            },
-            _ => {
-                ast.push(Node::from(token,
-                    &current_doc.unwrap_or_else(|| default_comment.clone())));
-                current_doc = None;
-            },
-        };
+        for token in parsed_tokens {
+            match token {
+                ParsedToken::DocComment(comment) => {
+                    current_doc = Some(comment.comment.to_owned());
+                },
+                _ => {
+                    ast.push(Node::from(token,
+                        &current_doc.unwrap_or_else(|| default_comment.clone())));
+                    current_doc = None;
+                },
+            };
+        }
+
+        Self {ast}
     }
-
-    ast
 }
