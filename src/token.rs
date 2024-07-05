@@ -1,4 +1,4 @@
-use regex::{*};
+use regex::*;
 
 #[derive(Debug)]
 pub enum Token {
@@ -12,7 +12,7 @@ pub enum Token {
 struct TokenPatternPair(&'static str, &'static str);
 
 #[derive(Debug)]
-pub struct TokenValuePair{
+pub struct TokenValuePair {
     pub token: Token,
     pub value: String,
 }
@@ -22,22 +22,22 @@ impl TokenValuePair {
         if capture.name("DocComment").is_some() {
             Self {
                 token: DocComment,
-                value: String::from(&capture["DocComment"])
+                value: String::from(&capture["DocComment"]),
             }
         } else if capture.name("Function").is_some() {
             Self {
                 token: Function,
-                value: String::from(&capture["Function"])
+                value: String::from(&capture["Function"]),
             }
         } else if capture.name("Struct").is_some() {
             Self {
                 token: Struct,
-                value: String::from(&capture["Struct"])
+                value: String::from(&capture["Struct"]),
             }
         } else if capture.name("Enum").is_some() {
             Self {
                 token: Enum,
-                value: String::from(&capture["Enum"])
+                value: String::from(&capture["Enum"]),
             }
         } else {
             panic!("Expected named field!");
@@ -45,8 +45,7 @@ impl TokenValuePair {
     }
 }
 
-
-pub use Token::{*};
+pub use Token::*;
 impl<'a> Token {
     fn get_pairs() -> &'static [TokenPatternPair] {
         static NAMES: [TokenPatternPair; 4] = [

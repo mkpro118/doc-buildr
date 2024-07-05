@@ -1,6 +1,6 @@
 #[derive(Debug)]
 pub struct DocComment {
-    pub comment: String
+    pub comment: String,
 }
 
 #[derive(Debug)]

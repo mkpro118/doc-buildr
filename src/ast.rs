@@ -1,5 +1,5 @@
 use crate::entity;
-use crate::parser::{*};
+use crate::parser::*;
 
 #[derive(Debug)]
 pub enum NodeTypes<'a> {
@@ -11,7 +11,7 @@ pub enum NodeTypes<'a> {
 #[derive(Debug)]
 pub struct Node<'a> {
     comment: String,
-    value: Option<NodeTypes<'a>>
+    value: Option<NodeTypes<'a>>,
 }
 
 #[derive(Debug)]
@@ -28,7 +28,7 @@ impl<'a> Node<'a> {
                 ParsedToken::Struct(x) => Some(NodeTypes::Struct(x)),
                 ParsedToken::Function(x) => Some(NodeTypes::Function(x)),
                 ParsedToken::Enum(x) => Some(NodeTypes::Enum(x)),
-            }
+            },
         }
     }
 
@@ -51,16 +51,18 @@ impl<'a> AST<'a> {
             match token {
                 ParsedToken::DocComment(comment) => {
                     current_doc = Some(comment.comment.to_owned());
-                },
+                }
                 _ => {
-                    ast.push(Node::from(token,
-                        &current_doc.unwrap_or_else(|| default_comment.clone())));
+                    ast.push(Node::from(
+                        token,
+                        &current_doc.unwrap_or_else(|| default_comment.clone()),
+                    ));
                     current_doc = None;
-                },
+                }
             };
         }
 
-        Self {ast}
+        Self { ast }
     }
 
     pub fn get_iter(&self) -> std::slice::Iter<'_, Node> {

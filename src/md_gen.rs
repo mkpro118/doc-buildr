@@ -1,10 +1,10 @@
-use crate::ast::{AST, Node, NodeTypes};
+use crate::ast::{Node, NodeTypes, AST};
 
 pub fn generate_md(ast: &AST) -> String {
     ast.get_iter()
-       .map(Node::md_gen_visit)
-       .collect::<Vec<_>>()
-       .join("\n\n")
+        .map(Node::md_gen_visit)
+        .collect::<Vec<_>>()
+        .join("\n\n")
 }
 
 impl<'a> Node<'a> {

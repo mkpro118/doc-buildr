@@ -6,6 +6,13 @@ mod parser;
 mod ast;
 mod md_gen;
 
+fn build_docs(
+    input_file: &str,
+    output_file: Option<&str>
+) -> Result<bool, &'static str> {
+
+}
+
 fn main() {
     let filename = "";
     let data = fs::read_to_string(filename).expect("File not found!");
