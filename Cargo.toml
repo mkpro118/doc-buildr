@@ -2,6 +2,12 @@
 name = "doc_buildr"
 version = "0.2.0"
 edition = "2021"
+rust-version = "1.68"
+description = "Generates markdown documentation from javadoc-style comments in C-style code."
+authors = ["M K <mkpro118@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/mkpro118/doc-buildr"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
