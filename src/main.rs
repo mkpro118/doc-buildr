@@ -4,11 +4,7 @@ use std::io::BufWriter;
 use std::io::Write;
 use std::path::Path;
 
-mod ast;
-mod entity;
-mod md_gen;
-mod parser;
-mod token;
+use doc_buildr::*;
 
 fn build_docs(input_file: &str) -> Result<String, String> {
     let Ok(data) = fs::read_to_string(input_file) else {
