@@ -86,6 +86,15 @@ impl<'a> NodeTypes<'a> {
         let NodeTypes::Function(node) = self else { panic!("Wrong type") };
         let mut md = String::new();
         md.push_str(format!("## Function `{}`\n\n", node.name).as_str());
+        md.push_str(
+            format!(
+                "```c\n{} {}({})\n```\n\n",
+                node.return_type,
+                node.name,
+                node.params.join(", ")
+            )
+            .as_str(),
+        );
         md.push_str(format!("{}\n\n", md_escape(comment_str)).as_str());
         md.push_str(format!("Returns `{}`: {}\n\n", node.return_type, ret_str).as_str());
         md.push_str("**Parameters**:\n");
