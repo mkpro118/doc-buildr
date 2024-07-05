@@ -43,9 +43,9 @@ pub trait Parse: 'static {
 impl Parse for entity::DocComment {
     fn parse(src: &str) -> Option<Self> {
         static PARAM_PATTERN: &str =
-            r"[^\S\r\n]*@param[^\S\r\n]+(?<name>\w+)[^\S\r\n]+(?<desc>(\w+|[^\S\r\n]*)+)";
+            r"[^\S\r\n]*@param[^\S\r\n]+(?<name>\w+)[^\S\r\n]+(?<desc>([^\r\n]+))";
 
-        static RETVAL_PATTERN: &str = r"[^\S\r\n]*@return[^\S\r\n]+(?<desc>(\w+|[^\S\r\n]*)+)";
+        static RETVAL_PATTERN: &str = r"[^\S\r\n]*@return[^\S\r\n]+(?<desc>([^\r\n])+)";
 
         enum Section {
             Description,
@@ -89,10 +89,10 @@ impl Parse for entity::DocComment {
                         match curr_section {
                             Description => {
                                 desc.push_str(s);
-                                desc.push_str("\\\n");
+                                desc.push_str("\n");
                             }
                             Param => {
-                                let Some(mut param) = params.last_mut() else {
+                                let Some(param) = params.last_mut() else {
                                 panic!("Control should not have reached here.");
                             };
                                 param.description.push(' ');
