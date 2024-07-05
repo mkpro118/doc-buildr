@@ -9,10 +9,12 @@ on:
     paths:
       - "src/*"
       - "tests/*"
+      - ".github/workflows/tests.yml"
   push:
     paths:
       - "src/*"
       - "tests/*"
+      - ".github/workflows/tests.yml"
 
 jobs:
   test:
@@ -24,7 +26,7 @@ jobs:
         rust: [stable, beta, nightly]
     steps:
     - uses: actions/checkout@v4
-    - uses: actions-rs/toolchain@v
+    - uses: actions-rs/toolchain@v1
     - run: cargo +${{matrix.rust}} test --workspace --locked --no-default-features
     - run: cargo +${{matrix.rust}} test --workspace --locked
     - run: cargo +${{matrix.rust}} test --workspace --locked --all-features
