@@ -45,9 +45,9 @@ jobs:
         toolchain: nightly
         profile: minimal
         components: miri, rust-src
-    - run: cargo +nightly miri test --workspace --locked --no-default-features
-    - run: cargo +nightly miri test --workspace --locked
-    - run: cargo +nightly miri test --workspace --locked --all-features
+    - run: cargo +nightly miri test --workspace --no-default-features
+    - run: cargo +nightly miri test --workspace
+    - run: cargo +nightly miri test --workspace --all-features
 
   check:
     name: Check on Rust ${{matrix.rust}}${{format(' ({0})', matrix.target || matrix.os)}}
