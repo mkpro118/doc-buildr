@@ -11,7 +11,6 @@ pub enum NodeTypes {
 #[derive(Debug)]
 pub struct Node {
     comment: String,
-    children: Vec<NodeTypes>,
     value: Option<NodeTypes>
 }
 
@@ -19,7 +18,6 @@ impl Node {
     pub fn from(token: ParsedToken, comment: &str) -> Self {
         Self {
             comment: comment.to_string(),
-            children: vec![],
             value: match token {
                 ParsedToken::DocComment(_) => None,
                 ParsedToken::Struct(x) => Some(NodeTypes::Struct(x)),

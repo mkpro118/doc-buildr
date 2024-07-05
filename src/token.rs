@@ -68,16 +68,6 @@ impl<'a> Token {
         }
     }
 
-    pub fn from_name(name: &str) -> Self {
-        match name {
-            "DocComment" => Token::DocComment,
-            "Function" => Token::Function,
-            "Struct" => Token::Struct,
-            "Enum" => Token::Enum,
-            _ => panic!("Unknown token name"),
-        }
-    }
-
     pub const fn as_str(&self) -> &'static str {
         match self {
             Token::DocComment => r"/\*\*(.*?)\*/",
