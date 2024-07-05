@@ -1,4 +1,5 @@
 use crate::ast::{Node, NodeTypes, AST};
+use crate::entity;
 
 pub fn generate_md(ast: &AST) -> String {
     ast.get_iter()
@@ -41,7 +42,7 @@ impl<'a> Node<'a> {
 }
 
 impl<'a> NodeTypes<'a> {
-    fn md_gen_visit(&self, comment: &str) -> String {
+    fn md_gen_visit(&self, comment: Option<&'a entity::DocComment>) -> String {
         match self {
             NodeTypes::Enum(_) => self.md_gen_visit_enum(comment),
             NodeTypes::Function(_) => self.md_gen_visit_function(comment),
@@ -49,11 +50,18 @@ impl<'a> NodeTypes<'a> {
         }
     }
 
-    fn md_gen_visit_enum(&self, comment: &str) -> String {
+    fn md_gen_visit_enum(&self, comment: Option<&'a entity::DocComment>) -> String {
+        let comment_str: &str;
+
+        match comment {
+            Some(c) => comment_str = c.comment.as_str(),
+            None => comment_str = "No documentation available",
+        }
+
         let NodeTypes::Enum(node) = self else { panic!("Wrong type") };
         let mut md = String::new();
         md.push_str(format!("## Enum `{}`\n\n", node.name).as_str());
-        md.push_str(format!("{}\n\n", md_escape(&comment)).as_str());
+        md.push_str(format!("{}\n\n", md_escape(comment_str)).as_str());
         md.push_str("**Variants**:\n");
 
         for variant in &node.variants {
@@ -63,12 +71,23 @@ impl<'a> NodeTypes<'a> {
         md
     }
 
-    fn md_gen_visit_function(&self, comment: &str) -> String {
+    fn md_gen_visit_function(&self, comment: Option<&'a entity::DocComment>) -> String {
+        let mut ret_str: &str = "No description";
+        let mut comment_str: &str = "No documentation available";
+
+        if let Some(c) = comment {
+            comment_str = c.comment.as_str();
+
+            if let Some(r) = &c.retval {
+                ret_str = r.description.as_str();
+            };
+        }
+
         let NodeTypes::Function(node) = self else { panic!("Wrong type") };
         let mut md = String::new();
         md.push_str(format!("## Function `{}`\n\n", node.name).as_str());
-        md.push_str(format!("{}\n\n", md_escape(&comment)).as_str());
-        md.push_str(format!("Return Type `{}`\n\n", node.return_type).as_str());
+        md.push_str(format!("{}\n\n", md_escape(comment_str)).as_str());
+        md.push_str(format!("Returns `{}`: {}\n\n", node.return_type, ret_str).as_str());
         md.push_str("**Parameters**:\n");
 
         for param in &node.params {
@@ -78,11 +97,18 @@ impl<'a> NodeTypes<'a> {
         md
     }
 
-    fn md_gen_visit_struct(&self, comment: &str) -> String {
+    fn md_gen_visit_struct(&self, comment: Option<&'a entity::DocComment>) -> String {
+        let comment_str: &str;
+
+        match comment {
+            Some(c) => comment_str = c.comment.as_str(),
+            None => comment_str = "No documentation available",
+        }
+
         let NodeTypes::Struct(node) = self else { panic!("Wrong type") };
         let mut md = String::new();
         md.push_str(format!("## Struct `{}`\n\n", node.name).as_str());
-        md.push_str(format!("{}\n\n", md_escape(&comment)).as_str());
+        md.push_str(format!("{}\n\n", md_escape(comment_str)).as_str());
         md.push_str("**Members**:\n");
 
         for member in &node.members {
