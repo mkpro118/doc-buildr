@@ -31,9 +31,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: actions-rs/toolchain@v1
-    - run: cargo +${{matrix.rust}} test --workspace --locked --no-default-features
-    - run: cargo +${{matrix.rust}} test --workspace --locked
-    - run: cargo +${{matrix.rust}} test --workspace --locked --all-features
+    - run: cargo +${{matrix.rust}} test --workspace --no-default-features
+    - run: cargo +${{matrix.rust}} test --workspace
+    - run: cargo +${{matrix.rust}} test --workspace --all-features
 
   miri:
     name: Miri
@@ -66,6 +66,6 @@ jobs:
         toolchain: ${{matrix.rust}}
         profile: minimal
         target: ${{matrix.target}}
-    - run: cargo +${{matrix.rust}} check --locked ${{env.target}} ${{env.workspace}} --no-default-features
-    - run: cargo +${{matrix.rust}} check --locked ${{env.target}} ${{env.workspace}}
-    - run: cargo +${{matrix.rust}} check --locked ${{env.target}} ${{env.workspace}} --all-features
+    - run: cargo +${{matrix.rust}} check ${{env.target}} ${{env.workspace}} --no-default-features
+    - run: cargo +${{matrix.rust}} check ${{env.target}} ${{env.workspace}}
+    - run: cargo +${{matrix.rust}} check ${{env.target}} ${{env.workspace}} --all-features
