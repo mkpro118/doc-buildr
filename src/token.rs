@@ -88,31 +88,23 @@ impl<'a> Token {
     }
 
     pub fn get_regex() -> Regex {
-        let pairs = Self::get_pairs();
-        let pairs = pairs.iter().map(|x| format!("(?<{}>{})", x.0, x.1));
+        let pattern = Self::get_pairs()
+            .iter()
+            .map(|x| format!("(?<{}>{})", x.0, x.1))
+            .collect::<Vec<_>>()
+            .join("|");
 
-        let pattern = pairs.collect::<Vec<_>>().join("|");
-
-        dbg!(&pattern);
-        let regex = RegexBuilder::new(&pattern)
+        RegexBuilder::new(&pattern)
             .multi_line(true)
             .dot_matches_new_line(true)
             .build()
-            .unwrap();
-        dbg!(&regex);
-
-        regex
+            .unwrap()
     }
 
     pub fn tokenize(code: &'a str) -> Vec<TokenValuePair> {
-        let regex = Token::get_regex();
-
-        let mut tokens: Vec<TokenValuePair> = vec![];
-        for capture in regex.captures_iter(code) {
-            tokens.push(TokenValuePair::from_capture(&capture));
-        }
-
-        // vec![]
-        tokens
+        Token::get_regex()
+            .captures_iter(code)
+            .map(|capture| TokenValuePair::from_capture(&capture))
+            .collect::<Vec<TokenValuePair>>()
     }
 }
