@@ -31,6 +31,14 @@ impl Node {
             }
         }
     }
+
+    pub fn get_comment(&self) -> &String {
+        &self.comment
+    }
+
+    pub fn get_value(&self) -> &Option<NodeTypes> {
+        &self.value
+    }
 }
 
 impl AST {
@@ -53,5 +61,9 @@ impl AST {
         }
 
         Self {ast}
+    }
+
+    pub fn get_iter(&self) -> std::slice::Iter<'_, Node> {
+        self.ast.iter()
     }
 }
