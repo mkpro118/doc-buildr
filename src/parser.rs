@@ -42,7 +42,24 @@ pub trait Parse: 'static {
 
 impl Parse for entity::DocComment {
     fn parse(src: &str) -> Option<Self> {
-        let comment = src
+        static PARAM_PATTERN: &str =
+            r"[^\S\r\n]*@param[^\S\r\n]+(?<name>\w+)[^\S\r\n]+(?<desc>(\w+|[^\S\r\n]*)+)";
+
+        static RETVAL_PATTERN: &str = r"[^\S\r\n]*@return[^\S\r\n]+(?<desc>(\w+|[^\S\r\n]*)+)";
+
+        enum Section {
+            Description,
+            Param,
+            RetVal,
+        }
+        use Section::*;
+
+        let mut curr_section = Description;
+
+        let param_re = regex::Regex::new(PARAM_PATTERN).unwrap();
+        let retval_re = regex::Regex::new(RETVAL_PATTERN).unwrap();
+
+        let (comment, params, retval) = src
             .strip_prefix("/**")
             .unwrap()
             .strip_suffix("*/")
@@ -52,15 +69,54 @@ impl Parse for entity::DocComment {
             .map(|x| x.trim_start_matches('*'))
             .map(str::trim_end)
             .filter(|x| !x.is_empty())
-            .map(|x| {
-                let mut s = x.to_string();
-                s.push('\\');
-                s
-            })
-            .collect::<Vec<_>>()
-            .join("\n");
+            .fold(
+                (String::new(), vec![], None),
+                |(mut desc, mut params, mut ret), s| {
+                    if let Some(capture) = param_re.captures(s) {
+                        curr_section = Param;
 
-        Some(Self { comment })
+                        let name = capture["name"].to_string();
+                        let description = capture["desc"].to_string();
+
+                        params.push(entity::Param { name, description });
+                    } else if let Some(capture) = retval_re.captures(s) {
+                        curr_section = RetVal;
+
+                        let description = capture["desc"].to_string();
+
+                        ret = Some(entity::Return { description });
+                    } else {
+                        match curr_section {
+                            Description => {
+                                desc.push_str(s);
+                                desc.push_str("\\\n");
+                            }
+                            Param => {
+                                let Some(mut param) = params.last_mut() else {
+                                panic!("Control should not have reached here.");
+                            };
+                                param.description.push(' ');
+                                param.description.push_str(s.trim());
+                            }
+                            RetVal => {
+                                let Some(ref mut retval) = ret else {
+                                panic!("Control should not have reached here.");
+                            };
+                                retval.description.push(' ');
+                                retval.description.push_str(s.trim());
+                            }
+                        }
+                    }
+
+                    (desc, params, ret)
+                },
+            );
+
+        Some(Self {
+            comment,
+            params,
+            retval,
+        })
     }
 }
 
