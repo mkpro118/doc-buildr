@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["DocComment","Represents a documentation comment."],["Enum","Represents an enum definition."],["Function","Represents a function definition."],["Param","Represents a function or method parameter."],["Return","Represents the return value of a function or method."],["Struct","Represents a struct definition."]]};

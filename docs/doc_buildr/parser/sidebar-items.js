@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["ParsedToken","Represents the different types of parsed tokens."]],"fn":[["parse_tokens","Parses a vector of TokenValuePairs into a vector of ParsedTokens."]],"trait":[["Parse","A trait for types that can be parsed from a string."]]};
