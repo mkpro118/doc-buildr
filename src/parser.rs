@@ -1,8 +1,14 @@
+//! # Parser Module
+//!
+//! This module is responsible for parsing tokens into more structured
+//! representations of code elements.
+
 use crate::entity;
 use crate::token;
 use crate::token::TokenValuePair;
 use regex::*;
 
+/// Represents the different types of parsed tokens.
 #[derive(Debug)]
 pub enum ParsedToken {
     DocComment(entity::DocComment),
@@ -11,6 +17,7 @@ pub enum ParsedToken {
     Enum(entity::Enum),
 }
 
+/// Attempts to match a regular expression pattern against a source string.
 fn get_capture<'a, 'b>(pat: &'a str, src: &'b str) -> Option<Captures<'b>> {
     let re = RegexBuilder::new(pat)
         .dot_matches_new_line(true)
@@ -20,6 +27,7 @@ fn get_capture<'a, 'b>(pat: &'a str, src: &'b str) -> Option<Captures<'b>> {
     re.captures(src)
 }
 
+/// Splits a source string by a separator character, trimming whitespace.
 fn src_split(source: &str, sep: char) -> Vec<String> {
     source
         .split(sep)
@@ -34,7 +42,9 @@ fn src_split(source: &str, sep: char) -> Vec<String> {
         .collect::<Vec<String>>()
 }
 
+/// A trait for types that can be parsed from a string.
 pub trait Parse: 'static {
+    /// Attempts to parse an instance of Self from a string.
     fn parse(src: &str) -> Option<Self>
     where
         Self: Sized;
@@ -167,6 +177,7 @@ impl Parse for entity::Enum {
     }
 }
 
+/// Parses a vector of TokenValuePairs into a vector of ParsedTokens.
 pub fn parse_tokens(pairs: &Vec<TokenValuePair>) -> Vec<ParsedToken> {
     pairs
         .iter()

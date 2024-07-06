@@ -1,6 +1,20 @@
+//! # Markdown Generation Module
+//!
+//! This module is responsible for generating markdown documentation
+//! from the Abstract Syntax Tree (AST) created by parsing the source code.
+
 use crate::ast::{Node, NodeTypes, AST};
 use crate::entity;
 
+/// Generates markdown documentation from an AST.
+///
+/// # Arguments
+///
+/// * `ast` - A reference to the AST to generate documentation from.
+///
+/// # Returns
+///
+/// A `String` containing the generated markdown documentation.
 pub fn generate_md(ast: &AST) -> String {
     ast.get_iter()
         .map(Node::md_gen_visit)
@@ -8,6 +22,7 @@ pub fn generate_md(ast: &AST) -> String {
         .join("\n\n")
 }
 
+/// Replaces leading whitespace with non-breaking spaces for markdown formatting.
 fn replace_leading_whitespace(s: &str) -> String {
     let (leading_whitespace, rest) = s.split_at(
         s.chars()
@@ -24,6 +39,7 @@ fn replace_leading_whitespace(s: &str) -> String {
     nbsp_prefix + rest
 }
 
+/// Escapes special characters in the content for proper markdown rendering.
 fn md_escape(content: &str) -> String {
     content
         .split("\n")
@@ -33,6 +49,7 @@ fn md_escape(content: &str) -> String {
 }
 
 impl<'a> Node<'a> {
+    /// Generates markdown for this node.
     fn md_gen_visit(&self) -> String {
         match self.get_value() {
             Some(node_type) => node_type.md_gen_visit(self.get_comment()),
@@ -42,6 +59,7 @@ impl<'a> Node<'a> {
 }
 
 impl<'a> NodeTypes<'a> {
+    /// Generates markdown for this node type.
     fn md_gen_visit(&self, comment: Option<&'a entity::DocComment>) -> String {
         match self {
             NodeTypes::Enum(_) => self.md_gen_visit_enum(comment),
@@ -50,6 +68,7 @@ impl<'a> NodeTypes<'a> {
         }
     }
 
+    /// Generates markdown for an enum.
     fn md_gen_visit_enum(&self, comment: Option<&'a entity::DocComment>) -> String {
         let comment_str: &str;
 
@@ -71,6 +90,7 @@ impl<'a> NodeTypes<'a> {
         md
     }
 
+    /// Generates markdown for a function.
     fn md_gen_visit_function(&self, comment: Option<&'a entity::DocComment>) -> String {
         let mut ret_str: &str = "No description";
         let mut comment_str: &str = "No documentation available";
@@ -129,6 +149,7 @@ impl<'a> NodeTypes<'a> {
         md
     }
 
+    /// Generates markdown for a struct.
     fn md_gen_visit_struct(&self, comment: Option<&'a entity::DocComment>) -> String {
         let comment_str: &str;
 

@@ -1,3 +1,8 @@
+//! # doc-buildr
+//!
+//! `doc-buildr` is a command-line tool that generates markdown documentation
+//! from javadoc-style comments in C-style code.
+
 use std::fs;
 use std::io::stdout;
 use std::io::BufWriter;
@@ -6,6 +11,16 @@ use std::path::Path;
 
 use doc_buildr::*;
 
+/// Builds documentation for a given input file.
+///
+/// # Arguments
+///
+/// * `input_file` - The path to the input file to process.
+///
+/// # Returns
+///
+/// A `Result` containing the generated markdown as a `String` if successful,
+/// or an error message as a `String` if an error occurred.
 fn build_docs(input_file: &str) -> Result<String, String> {
     let Ok(data) = fs::read_to_string(input_file) else {
         return Err(format!("File '{}' not found", &input_file));
@@ -24,6 +39,10 @@ fn build_docs(input_file: &str) -> Result<String, String> {
     Ok(docs)
 }
 
+/// The main entry point for the doc-buildr application.
+///
+/// This function parses command-line arguments, processes input files,
+/// and writes the generated documentation to the specified output or stdout.
 fn main() {
     enum ArgType {
         InputFile,
